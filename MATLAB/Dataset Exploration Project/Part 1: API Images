@@ -1,0 +1,148 @@
+apiKey = '####';
+
+% Specify the file path where you want to save the JSON response
+filePath = 'response.json';
+
+% Construct the Bash command to save the JSON response to a file
+bashCommand = sprintf('curl -H "Authorization: %s" "https://api.pexels.com/v1/search?query=nature&per_page=5" > "%s"', apiKey, filePath);
+
+    % Execute the Bash command from MATLAB
+    system(bashCommand);
+    
+    disp(['JSON response saved to file: ' filePath]);
+
+
+
+% In my case the API from the Pexels website is a RESTful JSON API and returned the data in a JSON file. 
+% This can be easily and methodically read with a MATLAB function. 
+% The Pexels API provides access to the full Pexels content library, which includes free stock photos, royalty free images & videos. 
+
+% My dataset is images from the website, which contains information like the title of the photo, the photographer who took it, as well as the dimensions of the photo. 
+% Pexels offers curated images and allows one to search for images by keyword. 
+% You can use the API to browse these collections and retrieve images that match your interests or project requirements.
+    filePath = 'response.json';
+
+    % Read the JSON response from the file using readstruct
+    jsonData = readstruct(filePath);
+    
+    % Convert the JSON data to a MATLAB table
+    photoData = jsonData.photos;
+    id = zeros(length(photoData), 1);
+    width = zeros(length(photoData), 1);
+    height = zeros(length(photoData), 1);
+    url = strings(length(photoData), 1);
+    photographer = strings(length(photoData), 1);
+    photographer_url = strings(length(photoData), 1);
+    photographer_id = zeros(length(photoData), 1);
+    avg_color = strings(length(photoData), 1);
+    liked = zeros(length(photoData), 1);
+    photo_title = strings(length(photoData), 1);
+    
+    for i = 1:length(photoData)
+        id(i) = photoData(i).id;
+        width(i) = photoData(i).width;
+        height(i) = photoData(i).height;
+        url(i) = photoData(i).src.original; % Extracting original URL
+        photographer(i) = photoData(i).photographer;
+        photographer_url(i) = photoData(i).photographer_url;
+        photographer_id(i) = photoData(i).photographer_id;
+        avg_color(i) = photoData(i).avg_color;
+        liked(i) = photoData(i).liked;
+        photo_title(i) = photoData(i).alt;
+    end
+ 
+
+
+
+viewTitle = false;
+viewPhotographer = false;
+viewDimensions = true;
+viewAverageColor = true;
+viewURL = true;
+
+% Code for displaying table
+
+% Initialize cell array to store selected columns
+selectedColumns = {};
+columnNames = {};
+
+% Include alt column if viewAlt is true
+if viewTitle
+    selectedColumns{end+1} = photo_title;
+    columnNames{end+1} = 'Photo Title';
+end
+
+% Include photographer column if viewPhotographer is true
+if viewPhotographer
+    selectedColumns{end+1} = photographer;
+    columnNames{end+1} = 'Photographer';
+end
+
+% Include dimensions columns if viewDimensions is true
+if viewDimensions
+    selectedColumns{end+1} = width;
+    selectedColumns{end+1} = height;
+    columnNames{end+1} = 'Width';
+    columnNames{end+1} = 'Height';
+end
+
+% Include average color column if viewAverageColor is true
+if viewAverageColor
+    selectedColumns{end+1} = avg_color;
+    columnNames{end+1} = 'Average Color';
+end
+
+% Include URL column if viewURL is true
+if viewURL
+    selectedColumns{end+1} = url;
+    columnNames{end+1} = 'URL';
+end
+
+% Create table from selected columns
+dataTable = table(selectedColumns{:}, 'VariableNames', columnNames);
+
+% Display the table
+disp(dataTable);
+
+
+myMasterTable = table(photo_title, photographer, width, height, avg_color, url);
+
+% Display Photos
+
+    viewAll = false;
+     viewOnlynum =3;
+     
+
+
+% Code for displaying the photos
+    figure;
+    if viewAll == true
+        tiledlayout('flow',TileIndexing='columnmajor',Padding='compact',TileSpacing='compact')
+        for i = 1:5
+            
+            % Get the URL of the current photo
+            photoURL = char(myMasterTable.url(i));
+            
+            % Read the image data from the URL
+            imageData = webread(photoURL);
+            
+            % Display the image in a subplot
+            nexttile
+            imshow(imageData);
+            title(sprintf('%s', photo_title(i)));
+        end
+    else
+        % Get the URL of the selected photo
+        photoURL = char(myMasterTable.url(viewOnlynum));
+    
+        % Read the image data from the URL
+        imageData = webread(photoURL);
+    
+        % Display the image
+        tiledlayout('flow')
+        nexttile
+        imshow(imageData);
+        axis off; 
+        title(sprintf('%s', photo_title(viewOnlynum)));
+        subtitle(sprintf('Photograph by: %s', photographer(viewOnlynum)));
+    end
