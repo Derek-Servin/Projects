@@ -14,5 +14,5 @@ It is designed to compete in the Autonomous Karting Series (AKS) at the Purdue T
 
 *   **Project Goal (AKS Context):** Complete the course autonomously.
 *   **Technical Approach:** Computer vision using OpenCV, info sent to path-planning node.
-*   **Challenges:** Without using AI/ML (for novices), Different shades of green, Shadows (dark grass, dark pavement, dark lines), finish line (checkered), kart itself (white bumper), forks on the track (must stay on the track, keep left)
+*   **Challenges:** Without using AI/ML (for novices), Different shades of green, Shadows (dark grass, dark pavement, dark lines), Finish line (checkered), Kart itself (white bumper), Forks on the track (must stay on the track, keep left), Sun (Glare on pavement, bright colors),... to name a few.
 *   **Contact:** deservin@umich.edu
